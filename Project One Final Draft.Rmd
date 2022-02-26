@@ -1,0 +1,76 @@
+---
+title: "Project One Data 607"
+author: "Al Haque"
+date: "`Feb 25, 2022`"
+output: openintro::lab_report
+---
+
+```{r}
+## import all the libraries 
+library(readr)
+library(stringr)
+library(tidyverse)
+
+data <- readLines("https://raw.githubusercontent.com/AldataSci/Project-One-Data-607/main/tournament.txt",n=-1)
+head(data)
+```
+```{r}
+##Start the sequence at the 5th row in the list and count every 3 rows
+Names <-data[seq(5,length(data),3)]
+Names <-str_trim(str_extract(Names,'[A-Z].{1,26}'))
+head(Names)
+```
+
+```{r}
+## Start the sequence of the data at the 6 row and count every 3 rows 
+subset <- data[seq(6,length(data),3)]
+State <- str_extract(subset,"[A-Z]{2}")
+head(State)
+```
+
+```{r}
+## Extract all the floating digits and convert it as a numeric
+points <- data[seq(5,length(data),3)]
+totalpts <- str_extract(points,'(\\d{1})(\\.)(\\d{1})')
+totalpts <- as.numeric(totalpts)
+totalpts
+```
+```{r}
+## use the specific regex to first get the numbers with the R: then extract the 4 digit elo from the previous string, filter out the na in the list and then convert the Elo as a integer value
+Elo <- str_extract(data,"R: ....")
+Elo <- str_extract(Elo,"....$")
+ActualElo <- Elo[!is.na(Elo)]
+ActualElo <-as.integer(ActualElo)
+head(ActualElo)
+```
+
+```{r}
+## calculate the individual person each player has faced, extract the subset extract all the matches now I have to get rid of the letters and white space next to the numbers, by extracting all the numbers and then checking if i got the values
+round <- data[seq(5,length(data),3)]
+round <- str_extract_all(round,'[A-Z]\\s{2,}\\d+')
+round <- str_extract_all(round,'\\d{1,}')
+head(round)
+
+```
+
+
+```{r}
+## Creating an empty list and finding the subset, convert it to integer and looped it to get the elo and append it to a position of a list, then rounded the list 
+
+list <- c()
+i <- 1
+for(i in c(1:length(round))){
+round[[i]]
+as.integer(unlist(round[[i]]))
+ActualElo[as.integer(unlist(round[[i]]))]
+list[i] <- mean(ActualElo[as.integer(unlist(round[[i]]))])   ## list[i] helps append the number at a certain position
+}
+AvgElo <- round(list)
+AvgElo
+```
+```{r}
+project_1 <- data.frame(Names,State,totalpts,ActualElo,AvgElo)
+
+write_csv(project_1,'project1.csv',append=FALSE)
+```
+
